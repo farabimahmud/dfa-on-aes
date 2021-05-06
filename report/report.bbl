@@ -6,4 +6,11 @@
 \newblock In {\em International Conference on Advanced Encryption Standard\/}
   (2004), Springer, pp.~27--41.
 
+\bibitem{tunstall2011differential}
+{\sc Tunstall, M., Mukhopadhyay, D., and Ali, S.}
+\newblock Differential fault analysis of the advanced encryption standard using
+  a single fault.
+\newblock In {\em IFIP international workshop on information security theory
+  and practices\/} (2011), Springer, pp.~224--233.
+
 \end{thebibliography}

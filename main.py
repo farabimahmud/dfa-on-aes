@@ -106,10 +106,11 @@ def prev_roundkey(arr, round_constant):
     return prev_arr
 
 
-def get_master_key_from_recovered(rk):
-    for r in range(9,-1,-1):
+def get_master_key_from_recovered(rk, starting_round=9):
+    print("{} & {} \\\\ \\hline".format(starting_round+1, rk))
+    for r in range(starting_round,-1,-1):
         rk = bytes_to_str(prev_roundkey(str_to_bytes(rk),rc[r]))
-        # print(r, rk)
+        print("{} & {} \\\\ \\hline".format(r, rk))
     return rk 
 
 
@@ -130,12 +131,6 @@ def task2():
     correct_ciphers= []
     faulty_ciphers = []
     correct_ciphers, faulty_ciphers = process_input(input_filename)
-
-    # for d in faulty_ciphers:
-    #     print(find_fault_byte_index(correct_ciphers[0],d))
-    # count = 0
-    # for d in faulty_ciphers:
-    #     print(dfa_byte_fault(correct_ciphers[0],d))
     data = [[] for i in range(4)]
     c = correct_ciphers[0]
 
@@ -330,5 +325,4 @@ def find_most_common_elem(mat):
 
 
 if __name__ == "__main__":
-    task1()
     task2()
