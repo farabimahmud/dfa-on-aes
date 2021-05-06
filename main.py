@@ -65,12 +65,72 @@ def find_non_zero_locations(c, d):
     return res 
 
 
-if __name__ == "__main__":
+
+def next_rounkdey(arr, round_constant):
+    next_arr = []
+    w0 = [arr[0],arr[1],arr[2],arr[3]]
+    w1 = [arr[4],arr[5],arr[6],arr[7]]
+    w2 = [arr[8],arr[9],arr[10],arr[11]]
+    w3 = [arr[12],arr[13],arr[14],arr[15]]
+    gw3 = gfunction(w3, round_constant)
+    w4 = [x^y for x,y in zip(w0,gw3)]
+    w5 = [x^y for x,y in zip(w4,w1)]
+    w6 = [x^y for x,y in zip(w5,w2)]
+    w7 = [x^y for x,y in zip(w6,w3)]
+    next_arr.extend(w4)
+    next_arr.extend(w5)
+    next_arr.extend(w6)
+    next_arr.extend(w7)
+
+    return next_arr
+
+def prev_roundkey(arr, round_constant):
+    prev_arr = []
+    w4 = [arr[0],arr[1],arr[2],arr[3]]
+    w5 = [arr[4],arr[5],arr[6],arr[7]]
+    w6 = [arr[8],arr[9],arr[10],arr[11]]
+    w7 = [arr[12],arr[13],arr[14],arr[15]]
+
+    w3 = [x^y for x,y in zip(w6,w7)]
+    gw3 = gfunction(w3, round_constant)
+    w2 = [x^y for x,y in zip(w5,w6)]
+    w1 = [x^y for x,y in zip(w4,w5)]
+    w0 = [x^y for x,y in zip(w4,gw3)]
+    prev_arr.extend(w0)
+    prev_arr.extend(w1)
+    prev_arr.extend(w2)
+    prev_arr.extend(w3)
+
+    return prev_arr
+
+
+def get_master_key_from_recovered(rk):
+    for r in range(9,-1,-1):
+        rk = bytes_to_str(prev_roundkey(str_to_bytes(rk),rc[r]))
+        # print(r, rk)
+    return rk 
+
+
+def task1():
     input_filename = "set1.txt"
     correct_ciphers = []
     faulty_ciphers = []
     correct_ciphers, faulty_ciphers = process_input(input_filename)
 
     recovered = dfa_bit_fault(correct_ciphers,faulty_ciphers)
-    print(bytes_to_str(recovered))
-    
+    master_key = get_master_key_from_recovered(bytes_to_str(recovered))
+    print("Master Key {}".format(master_key))
+    return master_key
+
+if __name__ == "__main__":
+    task1()
+    # print(bytes_to_str(recovered))
+    # rk = '5468617473206D79204B756E67204675'
+    # print(bytes_to_str(next_rounkdey(str_to_bytes(rk0),rc[0])))
+    # for r in range(0,10,1):
+    #     rk = bytes_to_str(next_rounkdey(str_to_bytes(rk),rc[r]))
+    #     print(r, rk)
+    # test r10 28fddef86da4244accc0a4fe3b316f26
+    # test r0 
+
+    # print(bytes_to_str(prev_roundkey(str_to_bytes(rk1),rc[0])))
