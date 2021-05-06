@@ -122,6 +122,24 @@ def task1():
     print("Master Key {}".format(master_key))
     return master_key
 
+def task2():
+    master_key = ''
+    return master_key
+
+def find_fault_byte_index(c,d):
+    locations = find_non_zero_locations(c,d)
+    if 0 in locations:
+        return 0
+    elif 1 in locations:
+        return 1
+    elif 2 in locations:
+        return 2
+    elif 3 in locations:
+        return 3
+    else:
+        print("Error!")
+        exit(1)
+
 if __name__ == "__main__":
     task1()
     # print(bytes_to_str(recovered))
@@ -134,3 +152,10 @@ if __name__ == "__main__":
     # test r0 
 
     # print(bytes_to_str(prev_roundkey(str_to_bytes(rk1),rc[0])))
+    input_filename = "set2.txt"
+    correct_ciphers= []
+    faulty_ciphers = []
+    correct_ciphers, faulty_ciphers = process_input(input_filename)
+
+    for d in faulty_ciphers:
+        print(find_fault_byte_index(correct_ciphers[0],d))
