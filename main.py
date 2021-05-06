@@ -1,5 +1,7 @@
 import numpy as np
+from scipy.stats import mode
 from aes import *
+
 
 def process_input(filename):
     correct_ciphers = []
@@ -140,8 +142,158 @@ def find_fault_byte_index(c,d):
         print("Error!")
         exit(1)
 
+def dfa_byte_fault_b0(c,d):
+    recovered = []
+    for f in range(256):
+        valid = [0,0,0,0]
+        for k0 in range(256):
+            if 2 * f == inv_subbyte(c[0] ^ k0) ^ inv_subbyte(d[0]^k0):
+                valid[0] =1
+            else:
+                continue
+            for k13 in range(256):
+                if f == inv_subbyte(c[13] ^ k13) ^ inv_subbyte(d[13]^k13):
+                    valid[1] =1
+                else:
+                    continue
+                for k10 in range(256):
+                    if f == inv_subbyte(c[10] ^ k10) ^ inv_subbyte(d[10]^k10):
+                        valid[2] =1
+                    else:
+                        continue   
+                    for k7 in range(256):
+                        if 3*f == inv_subbyte(c[7] ^ k7) ^ inv_subbyte(d[7]^k7):
+                            valid[3] =1
+                            if (sum(valid)==4):
+                                recovered.append([
+                                    k0, -1,  -1, -1,
+                                    -1, -1,  -1, k7,
+                                    -1, -1, k10, -1,
+                                    -1, k13, -1, -1])
+
+    return recovered
+                         
+
+
+def dfa_byte_fault_b1(c,d):
+    recovered = []
+    for f in range(256):
+        valid = [0,0,0,0]
+        for k4 in range(256):
+            if 3 * f == inv_subbyte(c[4] ^ k4) ^ inv_subbyte(d[4]^k4):
+                valid[0]=1
+            else:
+                continue
+            for k1 in range(256):
+                if 2* f == inv_subbyte(c[1] ^ k1) ^ inv_subbyte(d[1]^k1):
+                    valid[1]=1
+                else:
+                    continue
+                for k14 in range(256):
+                    if f == inv_subbyte(c[14] ^ k14) ^ inv_subbyte(d[14]^k14):
+                        valid[2]=1
+                    else:
+                        continue   
+                    for k11 in range(256):
+                        if f == inv_subbyte(c[11] ^ k11) ^ inv_subbyte(d[11]^k11):
+                            valid[3]=1
+                            if (sum(valid)==4):
+                                recovered.append([
+                                    -1, k1, -1, -1,
+                                    k4, -1, -1, -1,
+                                    -1, -1, -1, k11,
+                                    -1, -1, k14,-1])
+
+    return recovered
+
+
+def dfa_byte_fault_b2(c,d):
+    recovered = []
+    for f in range(256):
+        valid = [0,0,0,0]
+        for k8 in range(256):
+            if  f == inv_subbyte(c[8] ^ k8) ^ inv_subbyte(d[8]^k8):
+                valid[0]=1
+            else:
+                continue
+            for k5 in range(256):
+                if 3* f == inv_subbyte(c[5] ^ k5) ^ inv_subbyte(d[5]^k5):
+                    valid[1]=1
+                else:
+                    continue
+                for k2 in range(256):
+                    if 2*f == inv_subbyte(c[2] ^ k2) ^ inv_subbyte(d[2]^k2):
+                        valid[2]=1
+                    else:
+                        continue   
+                    for k15 in range(256):
+                        if f == inv_subbyte(c[15] ^ k15) ^ inv_subbyte(d[15]^k15):
+                            valid[3]=1
+                            if (sum(valid)==4):
+                                recovered.append([
+                                    -1, -1, k2, -1,
+                                    -1, k5, -1, -1,
+                                    k8, -1, -1, -1,
+                                    -1, -1, -1, k15])                            
+    return recovered
+
+
+def dfa_byte_fault_b3(c,d):
+    recovered = []
+    for f in range(256):
+        valid = [0,0,0,0]
+
+        for k12 in range(256):
+            if  f == inv_subbyte(c[12] ^ k12) ^ inv_subbyte(d[12]^k12):
+                valid[0] = 1
+            else:
+                continue
+            for k9 in range(256):
+                if  f == inv_subbyte(c[9] ^ k9) ^ inv_subbyte(d[9]^k9):
+                    valid[1] = 1
+                else:
+                    continue
+                for k6 in range(256):
+                    if 3*f == inv_subbyte(c[6] ^ k6) ^ inv_subbyte(d[6]^k6):
+                        valid[2] = 1
+                    else:
+                        continue   
+                    for k3 in range(256):
+                        if 2*f == inv_subbyte(c[3] ^ k3) ^ inv_subbyte(d[3]^k3):
+                            valid[3] = 1
+                            if (sum(valid)==4):
+                                recovered.append([
+                                    -1, -1, -1, k3,
+                                    -1, -1, k6, -1,
+                                    -1, k9, -1, -1,
+                                    k12,-1,-1, -1])
+
+    return recovered
+
+
+
+def dfa_byte_fault(c,d):    
+    fault_byte = find_fault_byte_index(c,d)
+    # print(fault_byte)
+    recovered = []
+    if  fault_byte == 0:
+        recovered = dfa_byte_fault_b0(c,d)
+    elif fault_byte == 1:
+        recovered = dfa_byte_fault_b1(c,d)
+    elif fault_byte == 2:
+        recovered = dfa_byte_fault_b2(c,d)    
+    elif fault_byte == 3:
+        recovered == dfa_byte_fault_b3(c,d)
+    return recovered
+
+def find_most_common_elem(mat):
+    v, c = mode(mat, axis=0)
+    return v.ravel().tolist()
+
+
+
 if __name__ == "__main__":
-    task1()
+    # task1()
     # print(bytes_to_str(recovered))
     # rk = '5468617473206D79204B756E67204675'
     # print(bytes_to_str(next_rounkdey(str_to_bytes(rk0),rc[0])))
@@ -157,5 +309,27 @@ if __name__ == "__main__":
     faulty_ciphers = []
     correct_ciphers, faulty_ciphers = process_input(input_filename)
 
-    for d in faulty_ciphers:
-        print(find_fault_byte_index(correct_ciphers[0],d))
+    # for d in faulty_ciphers:
+    #     print(find_fault_byte_index(correct_ciphers[0],d))
+    # count = 0
+    # for d in faulty_ciphers:
+    #     print(dfa_byte_fault(correct_ciphers[0],d))
+    data = [[] for i in range(4)]
+    print(data)
+    c = correct_ciphers[0]
+
+    for i in range(20):
+        d = faulty_ciphers[i]
+        x = dfa_byte_fault(c,d)
+        fault_location = find_fault_byte_index(c,d)
+        if (x is []):
+            continue
+        else:
+            if len(data[fault_location]) == 0:
+                data[fault_location] = np.array(x)
+            else:
+                data[fault_location] = np.append(data[fault_location],x,axis=0)
+        
+    for i in range(4):
+        if len(data[i]) != 0:
+            print(find_most_common_elem(data[i]))
