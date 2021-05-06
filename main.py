@@ -243,25 +243,26 @@ def dfa_byte_fault_b3(c,d):
     for f in range(256):
         valid = [0,0,0,0]
 
-        for k12 in range(256):
-            if  f == inv_subbyte(c[12] ^ k12) ^ inv_subbyte(d[12]^k12):
+        for k3 in range(256):
+            if  2 * f == inv_subbyte(c[3] ^ k3) ^ inv_subbyte(d[3]^k3):
                 valid[0] = 1
             else:
                 continue
-            for k9 in range(256):
-                if  f == inv_subbyte(c[9] ^ k9) ^ inv_subbyte(d[9]^k9):
+            for k6 in range(256):
+                if 3 * f == inv_subbyte(c[6] ^ k6) ^ inv_subbyte(d[6]^k6):
                     valid[1] = 1
                 else:
                     continue
-                for k6 in range(256):
-                    if 3*f == inv_subbyte(c[6] ^ k6) ^ inv_subbyte(d[6]^k6):
+                for k9 in range(256):
+                    if f == inv_subbyte(c[9] ^ k9) ^ inv_subbyte(d[9]^k9):
                         valid[2] = 1
                     else:
                         continue   
-                    for k3 in range(256):
-                        if 2*f == inv_subbyte(c[3] ^ k3) ^ inv_subbyte(d[3]^k3):
+                    for k12 in range(256):
+                        if f == inv_subbyte(c[12] ^ k12) ^ inv_subbyte(d[12]^k12):
                             valid[3] = 1
-                            if (sum(valid)==4):
+                            # print("Valid K3 {} K6 {} K9 {} K12".format(k3,k6, k9, k12), valid)
+                            if sum(valid)==4:
                                 recovered.append([
                                     -1, -1, -1, k3,
                                     -1, -1, k6, -1,
@@ -283,7 +284,7 @@ def dfa_byte_fault(c,d):
     elif fault_byte == 2:
         recovered = dfa_byte_fault_b2(c,d)    
     elif fault_byte == 3:
-        recovered == dfa_byte_fault_b3(c,d)
+        recovered = dfa_byte_fault_b3(c,d)
     return recovered
 
 def find_most_common_elem(mat):
@@ -315,7 +316,6 @@ if __name__ == "__main__":
     # for d in faulty_ciphers:
     #     print(dfa_byte_fault(correct_ciphers[0],d))
     data = [[] for i in range(4)]
-    print(data)
     c = correct_ciphers[0]
 
     for i in range(20):
@@ -329,7 +329,14 @@ if __name__ == "__main__":
                 data[fault_location] = np.array(x)
             else:
                 data[fault_location] = np.append(data[fault_location],x,axis=0)
-        
+
+    guess = np.array([])   
     for i in range(4):
         if len(data[i]) != 0:
-            print(find_most_common_elem(data[i]))
+            if len(guess)==0:
+                guess = np.array(find_most_common_elem(data[i]))
+                guess = guess.reshape(1,16)
+            else:  
+                guess = np.append(guess,np.array(find_most_common_elem(data[i])).reshape(1,16),axis=0)
+    key = guess.max(axis=0).tolist()
+    print(key)
